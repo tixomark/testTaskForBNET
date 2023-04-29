@@ -17,6 +17,8 @@ class ListViewController: UIViewController {
 
         setUp()
 
+        collectionView.dataSource = self
+        collectionView.register(ItemCell.self, forCellWithReuseIdentifier: "\(ItemCell.self)")
         
     }
     
@@ -24,13 +26,13 @@ class ListViewController: UIViewController {
         super.viewWillLayoutSubviews()
         
         setUpUI()
-        presenter.requestItemsData()
+        presenter.requestCollectionUpdate()
     }
     
     
     func setUp() {
         view.backgroundColor = .white
-        title = "List"
+        title = "Препараты"
         
         let flowLayout = UICollectionViewFlowLayout()
         
@@ -55,15 +57,19 @@ class ListViewController: UIViewController {
 }
 
 extension ListViewController: ListViewProtocol {
-    func reloadCollectionView(using items: [Item]) {
-        
+    func reloadCollectionView() {
+        collectionView.reloadData()
     }
     
 }
 
 extension ListViewController: UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        1
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        <#code#>
+        presenter.requestNumberOfItems()
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

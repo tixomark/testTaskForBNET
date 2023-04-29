@@ -20,6 +20,7 @@
 		9D50D49D29FC28900000F1D9 /* Service+Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D50D49C29FC28900000F1D9 /* Service+Protocols.swift */; };
 		9D50D49F29FC2AE30000F1D9 /* ModuleBuiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D50D49E29FC2AE30000F1D9 /* ModuleBuiler.swift */; };
 		9D50D4A129FC2C3D0000F1D9 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D50D4A029FC2C3D0000F1D9 /* Router.swift */; };
+		9D50D4A329FD1FDF0000F1D9 /* ItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D50D4A229FD1FDF0000F1D9 /* ItemCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +39,7 @@
 		9D50D49C29FC28900000F1D9 /* Service+Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Service+Protocols.swift"; sourceTree = "<group>"; };
 		9D50D49E29FC2AE30000F1D9 /* ModuleBuiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleBuiler.swift; sourceTree = "<group>"; };
 		9D50D4A029FC2C3D0000F1D9 /* Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
+		9D50D4A229FD1FDF0000F1D9 /* ItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				9D50D49729FC266F0000F1D9 /* NavigationController.swift */,
+				9D50D4A229FD1FDF0000F1D9 /* ItemCell.swift */,
 				9D50D48C29FBACA30000F1D9 /* ListViewController.swift */,
 				9D50D49A29FC27740000F1D9 /* ListPresenter.swift */,
 			);
@@ -190,6 +193,7 @@
 				9D50D49D29FC28900000F1D9 /* Service+Protocols.swift in Sources */,
 				9D50D47B29FBA77A0000F1D9 /* SceneDelegate.swift in Sources */,
 				9D50D48F29FBAD620000F1D9 /* NetworkService.swift in Sources */,
+				9D50D4A329FD1FDF0000F1D9 /* ItemCell.swift in Sources */,
 				9D50D48D29FBACA30000F1D9 /* ListViewController.swift in Sources */,
 				9D50D49829FC266F0000F1D9 /* NavigationController.swift in Sources */,
 				9D50D49529FBCF110000F1D9 /* JSONDataStructures.swift in Sources */,

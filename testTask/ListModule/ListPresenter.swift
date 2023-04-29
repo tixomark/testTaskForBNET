@@ -10,11 +10,14 @@ import Foundation
 protocol ListViewProtocol: AnyObject {
     var presenter: ListPresenterProtocol! { get }
     
-    func reloadCollectionView(using items: [Item])
+    func reloadCollectionView()
 }
 
 protocol ListPresenterProtocol {
-    func requestItemsData()
+    
+    func requestCollectionUpdate()
+    func requestNumberOfItems() -> Int
+    
 }
 
 extension ListPresenter: ServiceObtainableProtocol {
@@ -34,21 +37,32 @@ class ListPresenter: ListPresenterProtocol {
     var dataProvider: DataProviderProtocol?
     var networkService: NetworkServiceProtocol?
     
+    
+    var items: [Item] = []
     weak var view: ListViewProtocol!
     
     init(view: ListViewProtocol) {
         self.view = view
     }
     
-    func requestItemsData() {
+    func requestCollectionUpdate() {
         networkService?.getItemsOn(query: "", startingFrom: 0, amount: 20, completion: { result in
             switch result {
             case .success(let items):
-                self.view.reloadCollectionView(using: items)
+                self.items.append(contentsOf: items)
+                self.view.reloadCollectionView()
             case .failure(let error):
                 print(error.localizedDescription)
             }
         })
+    }
+    
+    func requestNumberOfItems() -> Int {
+        return items.count
+    }
+    
+    func requestDataOfItem(at index: IndexPath) -> Item? {
+        return nil
     }
     
 }
