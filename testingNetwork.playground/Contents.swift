@@ -4,9 +4,10 @@ import Cocoa
 struct Item: Codable {
     let id: Int?
     let image: String?
-    let categories: Categories?
+//    let categories: Categories?
     let name, description, documentation: String?
-    let fields: [Field]?
+    let imageg: Data?
+//    let fields: [Field]?
 }
 
 struct Categories: Codable {
@@ -56,11 +57,11 @@ class NetworkService {
     private let networkQueue = DispatchQueue(label: "networkQueue", qos: .default, attributes: .concurrent)
     private var networkURLSession: URLSession!
     
-    private let baseURL: String = "http://shans.d2.i-partner.ru/api/ppp/"
+    private let baseURL: String = "http://shans.d2.i-partner.ru"
     
     private enum APIMethods: String {
-        case item = "item/"
-        case index = "index/"
+        case item = "/api/ppp/item/"
+        case index = "/api/ppp/index/"
     }
     
     init() {
@@ -134,6 +135,8 @@ class NetworkService {
         
     }
     
+    private func getImage(at path: String)
+    
 }
 
 let ns = NetworkService()
@@ -148,10 +151,13 @@ let ns = NetworkService()
 //    }
 //}
 
+//http://shans.d2.i-partner.ru/upload/drugs/categories//desikanti_a1057641.png
+
 ns.getItemsOn(query: "Де") { result in
     switch result {
     case .success(let ritem):
         ritem.count
+        print(ritem[0])
     case .failure(let error):
         print(error)
     }

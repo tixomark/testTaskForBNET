@@ -10,19 +10,20 @@ import Foundation
 protocol ListViewProtocol: AnyObject {
     var presenter: ListPresenterProtocol! { get }
     
-    func reloadCollectionView()
+    func addItemsAt(_ indexPaths: [IndexPath])
+    func reloadItem(at index: Int)
 }
 
 protocol ListPresenterProtocol {
-    
-    func requestCollectionUpdate()
-    func requestNumberOfItems() -> Int
-    
+    func requestNetSetOfItems()
+    func getNumberOfItems() -> Int
+    func requestDataForItem(at indexPath: IndexPath) -> Item?
+    func didTapOnItem(at indexPath: IndexPath)
 }
 
 extension ListPresenter: ServiceObtainableProtocol {
     var neededServices: [Service] {
-        return [.router, .dataProvider, .networkService]
+        [.router, .dataProvider, .networkService]
     }
     
     func getServices(_ services: [Service : ServiceProtocol]) {
@@ -32,7 +33,7 @@ extension ListPresenter: ServiceObtainableProtocol {
     }
 }
 
-class ListPresenter: ListPresenterProtocol {
+final class ListPresenter: ListPresenterProtocol {
     var router: RouterProtocol?
     var dataProvider: DataProviderProtocol?
     var networkService: NetworkServiceProtocol?
@@ -44,25 +45,57 @@ class ListPresenter: ListPresenterProtocol {
     init(view: ListViewProtocol) {
         self.view = view
     }
+    deinit {
+        print("deinited ListPresenter")
+    }
     
-    func requestCollectionUpdate() {
-        networkService?.getItemsOn(query: "", startingFrom: 0, amount: 20, completion: { result in
+    
+    func requestNetSetOfItems() {
+        let nextBatchStartIndex = items.count
+        networkService?.getItemsOn(query: "",
+                                   startingFrom: nextBatchStartIndex,
+                                   amount: 10,
+                                   completion: { result in
             switch result {
             case .success(let items):
                 self.items.append(contentsOf: items)
-                self.view.reloadCollectionView()
+                var indexPaths: [IndexPath] = []
+                (nextBatchStartIndex ..< self.items.count).forEach { index in
+                    indexPaths.append(.init(item: index, section: 0))
+                }
+                self.view.addItemsAt(indexPaths)
+                self.loadImages()
             case .failure(let error):
                 print(error.localizedDescription)
+                return
             }
         })
     }
     
-    func requestNumberOfItems() -> Int {
+    private func loadImages() {
+        for (index, item) in items.enumerated() {
+            networkService?.downloadImageFor(item: item,
+                                             completion: { result in
+                switch result {
+                case .success(let imageUrl):
+                    self.items[index].imageURL = imageUrl.absoluteString
+                    self.view.reloadItem(at: index)
+                case .failure(_):
+                    return
+                }
+            })
+        }
+    }
+    
+    func getNumberOfItems() -> Int {
         return items.count
     }
     
-    func requestDataOfItem(at index: IndexPath) -> Item? {
-        return nil
+    func requestDataForItem(at indexPath: IndexPath) -> Item? {
+        return items[indexPath.item]
     }
     
+    func didTapOnItem(at indexPath: IndexPath) {
+        router?.showItemDetailModule(item: items[indexPath.item])
+    }
 }

@@ -9,6 +9,7 @@ import Foundation
 
 protocol ModuleBuilderProtocol {
     func createListModule() -> ListViewController
+    func createItemDetailModule(item: Item) -> ItemDetailViewController
 }
 
 extension ModuleBuilder: ServiceProtocol {
@@ -17,8 +18,8 @@ extension ModuleBuilder: ServiceProtocol {
     }
 }
 
-class ModuleBuilder: ModuleBuilderProtocol {
-    var services: [Service:ServiceProtocol] = [:]
+final class ModuleBuilder: ModuleBuilderProtocol {
+    private var services: [Service:ServiceProtocol] = [:]
     
     init() {
         services[.dataProvider] = DataProvider()
@@ -43,11 +44,6 @@ class ModuleBuilder: ModuleBuilderProtocol {
         return services[.router] as! Router
     }
     
-    func createNavigation() -> NavigationController {
-        let navigation = NavigationController()
-        return navigation
-    }
-    
     func createListModule() -> ListViewController {
         let view = ListViewController()
         let presenter = ListPresenter(view: view)
@@ -57,7 +53,12 @@ class ModuleBuilder: ModuleBuilderProtocol {
         return view
     }
     
-    
-    
-    
+    func createItemDetailModule(item: Item) -> ItemDetailViewController {
+        let view = ItemDetailViewController()
+        let presenter = ItemDetailPresenter(view: view, item: item)
+        injectServices(forObject: presenter)
+        view.presenter = presenter
+        
+        return view
+    } 
 }

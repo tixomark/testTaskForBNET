@@ -6,14 +6,20 @@
 //
 
 import Foundation
+import UIKit
 
 // MARK: - Item
 struct Item: Codable {
     let id: Int?
-    let image: String?
-    let categories: Categories?
+    var imageURL: String?
+//    let categories: Categories?
     let name, description, documentation: String?
-    let fields: [Field]?
+//    let fields: [Field]?
+    
+    enum CodingKeys: String, CodingKey {
+        case imageURL = "image"
+        case id, name, description, documentation
+    }
 }
 
 struct Categories: Codable {

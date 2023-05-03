@@ -12,6 +12,7 @@ protocol RouterProtocol {
     var window: UIWindow? { get }
     
     func showListModule()
+    func showItemDetailModule(item: Item)
 }
 
 extension Router: ServiceProtocol {
@@ -30,13 +31,12 @@ extension Router: ServiceObtainableProtocol {
     }
 }
 
-class Router: RouterProtocol {
+final class Router: RouterProtocol {
     weak var window: UIWindow?
-    var navigation: NavigationController?
+    private var navigation: NavigationController?
     
     var moduleBuilder: ModuleBuilderProtocol?
     
-
     func showListModule() {
         if navigation != nil {
             window?.rootViewController = navigation
@@ -48,5 +48,17 @@ class Router: RouterProtocol {
         } else { print("Error while creating ListModule") }
     }
     
+    func showItemDetailModule(item: Item) {
+        if navigation == nil {
+            print("somehow ItemDetailModule precedes ListModule")
+            showListModule()
+            showItemDetailModule(item: item)
+        } else if let detailVC = moduleBuilder?.createItemDetailModule(item: item) {
+            navigation?.pushViewController(detailVC, animated: true)
+            print("showing ItemDetailModule")
+        } else {
+            print("Error while showing ItemDetailModule")
+        }
+    }
     
 }

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ItemCell: UICollectionViewCell {
+final class ItemCell: UICollectionViewCell {
     var imageView: UIImageView!
     var titleLabel: UILabel!
     var descriptionLabel: UILabel!
@@ -16,15 +16,23 @@ class ItemCell: UICollectionViewCell {
         super.init(frame: frame)
         
         setUpCell()
-
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.image = nil
+    }
     override func layoutSubviews() {
         super.layoutSubviews()
-        setUpCellAppearance()
+        setUpConstraints()
     }
     
-    func setUpCell() {
+    private func setUpCell() {
+        backgroundColor = .TTsystemColor
+        layer.cornerRadius = 8
+        layer.shadowOffset = CGSize(width: 0, height: 0)
+        layer.shadowOpacity = 0.2
+        
         imageView = UIImageView()
         titleLabel = UILabel()
         descriptionLabel = UILabel()
@@ -35,18 +43,17 @@ class ItemCell: UICollectionViewCell {
         
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 8
         
         titleLabel.numberOfLines = 0
         titleLabel.font = UIFont(name: "SanFranciscoDisplay-Semibold", size: 13)
         
         descriptionLabel.font = UIFont(name: "SanFranciscoDisplay-Regular", size: 12)
+        descriptionLabel.textColor = .systemGray
         descriptionLabel.numberOfLines = 5
-        
-        
-        
     }
     
-    func setUpCellAppearance() {
+    private func setUpConstraints() {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -60,7 +67,7 @@ class ItemCell: UICollectionViewCell {
             
             titleLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: imageView.trailingAnchor),
-            titleLabel.bottomAnchor.constraint(equalTo: descriptionLabel.topAnchor, constant: 12),
+            titleLabel.bottomAnchor.constraint(equalTo: descriptionLabel.topAnchor, constant: -12),
             
             descriptionLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: imageView.trailingAnchor)
@@ -69,8 +76,23 @@ class ItemCell: UICollectionViewCell {
         
     }
     
-    func setUpCellData() {
+    func configureUsing(_ item: Item) {
+        imageView.backgroundColor = .systemGray
+        titleLabel.text = item.name
+        descriptionLabel.text = item.description
         
+        guard let imagePath = item.imageURL, let imageURL = URL(string: imagePath) else {
+            print("Can not create image URL")
+            return
+        }
+        do {
+            let data = try Data(contentsOf: imageURL)
+            if let image = UIImage(data: data) {
+                imageView.image = image
+            }
+        } catch {
+            print("No image for item")
+        }
     }
     
     required init?(coder: NSCoder) {
