@@ -8,7 +8,7 @@
 import Foundation
 
 enum Service {
-    case dataProvider, router, moduleBuilder, networkService
+    case router, moduleBuilder, networkService
 }
 
 protocol ServiceProtocol: CustomStringConvertible {

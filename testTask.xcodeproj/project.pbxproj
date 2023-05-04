@@ -12,7 +12,6 @@
 		9D50D48529FBA77C0000F1D9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9D50D48329FBA77C0000F1D9 /* LaunchScreen.storyboard */; };
 		9D50D48D29FBACA30000F1D9 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D50D48C29FBACA30000F1D9 /* ListViewController.swift */; };
 		9D50D48F29FBAD620000F1D9 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D50D48E29FBAD620000F1D9 /* NetworkService.swift */; };
-		9D50D49229FBADB60000F1D9 /* DataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D50D49129FBADB60000F1D9 /* DataProvider.swift */; };
 		9D50D49529FBCF110000F1D9 /* JSONDataStructures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D50D49429FBCF110000F1D9 /* JSONDataStructures.swift */; };
 		9D50D49829FC266F0000F1D9 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D50D49729FC266F0000F1D9 /* NavigationController.swift */; };
 		9D50D49B29FC27740000F1D9 /* ListPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D50D49A29FC27740000F1D9 /* ListPresenter.swift */; };
@@ -35,7 +34,6 @@
 		9D50D48629FBA77C0000F1D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9D50D48C29FBACA30000F1D9 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		9D50D48E29FBAD620000F1D9 /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
-		9D50D49129FBADB60000F1D9 /* DataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataProvider.swift; sourceTree = "<group>"; };
 		9D50D49429FBCF110000F1D9 /* JSONDataStructures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDataStructures.swift; sourceTree = "<group>"; };
 		9D50D49729FC266F0000F1D9 /* NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
 		9D50D49A29FC27740000F1D9 /* ListPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListPresenter.swift; sourceTree = "<group>"; };
@@ -101,7 +99,6 @@
 				9D50D49E29FC2AE30000F1D9 /* ModuleBuiler.swift */,
 				9D50D4A029FC2C3D0000F1D9 /* Router.swift */,
 				9D50D49629FBD57A0000F1D9 /* Networking */,
-				9D50D49129FBADB60000F1D9 /* DataProvider.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -214,7 +211,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D50D4A129FC2C3D0000F1D9 /* Router.swift in Sources */,
-				9D50D49229FBADB60000F1D9 /* DataProvider.swift in Sources */,
 				9D50D47929FBA77A0000F1D9 /* AppDelegate.swift in Sources */,
 				9D50D49F29FC2AE30000F1D9 /* ModuleBuiler.swift in Sources */,
 				9D50D4A729FD51810000F1D9 /* ItemDetailPresenter.swift in Sources */,

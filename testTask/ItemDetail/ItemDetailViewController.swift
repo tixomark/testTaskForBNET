@@ -63,13 +63,14 @@ final class ItemDetailViewController: UIViewController {
         
         whereToBuyButton.layer.cornerRadius = 8
         whereToBuyButton.layer.borderWidth = 1
-        whereToBuyButton.layer.borderColor = UIColor(red: 239/255, green: 239/255, blue: 240/255, alpha: 1.0).cgColor
-//        whereToBuyButton.setTitle("ГДЕ КУПИТЬ", for: .normal)
-//        let titleFont = UIFont(name: "SanFranciscoDisplay-Regular", size: 12)
-        var title = NSAttributedString(string: "ГДЕ КУПИТЬ", attributes: [NSAttributedString.Key.font: UIFont(name: "AppleSDGothicNeo-Regular", size: 12)!])
+        whereToBuyButton.layer.borderColor = UIColor(red: 239/255,
+                                                     green: 239/255,
+                                                     blue: 240/255,
+                                                     alpha: 1.0).cgColor
+        let title = NSAttributedString(string: "ГДЕ КУПИТЬ",
+                                       attributes: [.font: UIFont(name: "AppleSDGothicNeo-Regular",
+                                                                  size: 12)!])
         whereToBuyButton.setAttributedTitle(title, for: .normal)
-//        whereToBuyButton.titleLabel?.font = UIFont(name: "SanFranciscoDisplay-Regular", size: 12)
-        
         whereToBuyButton.setTitleColor(.TTContrastColor, for: .normal)
         whereToBuyButton.setImage(UIImage(named: "LocationIcon"), for: .normal)
         whereToBuyButton.imageEdgeInsets = UIEdgeInsets(top: 9, left: 0, bottom: 9, right: 7)

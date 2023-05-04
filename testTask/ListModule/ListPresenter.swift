@@ -25,19 +25,17 @@ protocol ListPresenterProtocol {
 
 extension ListPresenter: ServiceObtainableProtocol {
     var neededServices: [Service] {
-        [.router, .dataProvider, .networkService]
+        [.router, .networkService]
     }
     
     func getServices(_ services: [Service : ServiceProtocol]) {
         self.router = (services[.router] as! RouterProtocol)
-        self.dataProvider = (services[.dataProvider] as! DataProviderProtocol)
         self.networkService = (services[.networkService] as! NetworkServiceProtocol)
     }
 }
 
 final class ListPresenter: ListPresenterProtocol {
     var router: RouterProtocol?
-    var dataProvider: DataProviderProtocol?
     var networkService: NetworkServiceProtocol?
     
     var lock = pthread_rwlock_t()

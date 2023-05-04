@@ -22,7 +22,6 @@ final class ModuleBuilder: ModuleBuilderProtocol {
     private var services: [Service:ServiceProtocol] = [:]
     
     init() {
-        services[.dataProvider] = DataProvider()
         services[.networkService] = NetworkService()
         services[.moduleBuilder] = self
         
