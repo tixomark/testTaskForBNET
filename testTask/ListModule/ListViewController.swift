@@ -7,22 +7,31 @@
 
 import UIKit
 
+// Судя по всему, стандартный скролл(а значит и колекшн) не передает ивенты следующему респондеру, даже если нажатие случилось на месте где ничего нет. Был выбор либо сделать тапГесчерРекогнайзер либо переопределить тачесБигэн в наследнике. Второе смотрится лаконичнее.
+class TTCollectionView: UICollectionView {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        next?.touchesBegan(touches, with: event)
+    }
+}
+
 final class ListViewController: UIViewController {
     var presenter: ListPresenterProtocol!
     
-    var collectionView: UICollectionView!
+    var collectionView: TTCollectionView!
     var collectionIsWaitingForUpdate: Bool = false
+    var searchButton: UIBarButtonItem!
+    var searchBar: UISearchBar!
+    var timer: Timer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         setUp()
         
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(ItemCell.self, forCellWithReuseIdentifier: "\(ItemCell.self)")
-        
-//        presenter.requestCollectionUpdate()
     }
     
     deinit {
@@ -34,7 +43,6 @@ final class ListViewController: UIViewController {
         setUpConstraints()
     }
     
-    
     func setUp() {
         view.backgroundColor = .TTsystemColor
         title = "Препараты"
@@ -43,12 +51,19 @@ final class ListViewController: UIViewController {
         let itemWidth = (view.frame.width - 16 * 2 - 15) / 2
         let itemHeight = itemWidth * 1.8
         flowLayout.itemSize = CGSize(width: itemWidth, height: itemHeight)
-//        flowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        //        flowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         flowLayout.sectionInset = UIEdgeInsets(top: 24, left: 16, bottom: 56, right: 16)
         flowLayout.minimumLineSpacing = 15
         
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
+        collectionView = TTCollectionView(frame: .zero, collectionViewLayout: flowLayout)
         view.addSubview(collectionView)
+        
+        searchButton = UIBarButtonItem(image: UIImage(named: "SearchIcon"), style: .plain, target: self, action: #selector(didTapOnSearchButton(_:)))
+        navigationItem.rightBarButtonItem = searchButton
+        
+        searchBar = UISearchBar()
+        searchBar.placeholder = "Search"
+        searchBar.showsCancelButton = false
     }
     
     func setUpConstraints() {
@@ -60,6 +75,24 @@ final class ListViewController: UIViewController {
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)])
     }
+    
+    @objc func didTapOnSearchButton(_ sender: UIBarButtonItem) {
+        searchBar.delegate = self
+        navigationItem.setRightBarButton(nil, animated: true)
+        navigationItem.titleView = searchBar
+        searchBar.setShowsCancelButton(true, animated: true)
+        searchBar.becomeFirstResponder()
+        
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//        super.touchesBegan(touches, with: event)
+        print(searchBar.isFirstResponder)
+        if searchBar.isFirstResponder {
+            searchBar.resignFirstResponder()
+        }
+    }
+    
 }
 
 extension ListViewController: ListViewProtocol {
@@ -75,12 +108,23 @@ extension ListViewController: ListViewProtocol {
         DispatchQueue.main.async {
             self.collectionView.insertItems(at: indexPaths)
             print("items inserted")
+            
             if indexPaths.count == 10 {
                 self.collectionIsWaitingForUpdate = false
             }
         }
     }
     
+    func items(toDelete: [IndexPath], toInsert: [IndexPath]) {
+        DispatchQueue.main.async {
+            self.collectionView.performBatchUpdates {
+                self.collectionView.deleteItems(at: toDelete)
+                self.collectionView.insertItems(at: toInsert)
+            }
+            print("items deleted")
+        }
+    }
+   
 }
 
 extension ListViewController: UICollectionViewDataSource {
@@ -89,7 +133,7 @@ extension ListViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        presenter.getNumberOfItems()
+        return presenter.getNumberOfItems()
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -110,13 +154,43 @@ extension ListViewController: UICollectionViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard !collectionIsWaitingForUpdate else {
-//            print("collection is waiting for next batch of items")
+            //            print("collection is waiting for next batch of items")
             return
         }
         if scrollView.contentOffset.y + scrollView.frame.size.height > scrollView.contentSize.height {
             print("new batch of items is requested")
-            presenter.requestNetSetOfItems()
+            presenter.requestNetSetOfItems(text: searchBar.text ?? "")
             collectionIsWaitingForUpdate = true
         }
+    }
+}
+
+extension ListViewController: UISearchBarDelegate {
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        if searchBar.text != "" {
+            searchBar.text = ""
+            searchBar.delegate?.searchBar?(searchBar, textDidChange: "")
+        }
+        searchBar.setShowsCancelButton(false, animated: true)
+        navigationItem.titleView = nil
+        navigationItem.rightBarButtonItem = searchButton
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if timer != nil {
+            timer.invalidate()
+            timer = nil
+        }
+        timer = Timer(timeInterval: 0.2, repeats: false, block: { [weak self] _ in
+            self?.presenter.requestNetSetOfItems(text: searchText)
+            self?.timer.invalidate()
+            self?.timer = nil
+        })
+        timer.tolerance = 0.02
+        RunLoop.current.add(timer, forMode: .common)
     }
 }

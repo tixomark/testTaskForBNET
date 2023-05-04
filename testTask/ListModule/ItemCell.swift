@@ -21,6 +21,8 @@ final class ItemCell: UICollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         imageView.image = nil
+        titleLabel.text = ""
+        descriptionLabel.text = ""
     }
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -72,27 +74,29 @@ final class ItemCell: UICollectionViewCell {
             descriptionLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: imageView.trailingAnchor)
         ])
-        
-        
     }
     
     func configureUsing(_ item: Item) {
         imageView.backgroundColor = .systemGray
         titleLabel.text = item.name
         descriptionLabel.text = item.description
+        var itemImage: UIImage!
         
         guard let imagePath = item.imageURL, let imageURL = URL(string: imagePath) else {
             print("Can not create image URL")
+            itemImage = UIImage(named: "noImage")
             return
         }
         do {
             let data = try Data(contentsOf: imageURL)
             if let image = UIImage(data: data) {
-                imageView.image = image
+                itemImage = image
             }
         } catch {
             print("No image for item")
+            itemImage = UIImage(named: "noImage")
         }
+        imageView.image = itemImage
     }
     
     required init?(coder: NSCoder) {

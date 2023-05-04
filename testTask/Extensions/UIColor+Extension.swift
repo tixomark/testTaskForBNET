@@ -19,9 +19,18 @@ extension UIColor {
     
     static var TTContrastColor: UIColor {
         guard let color = UIColor(named: "TTContrastColor") else {
-            print("Can not find 'TTSecondarySystemColor' in assets folder")
+            print("Can not find 'TTContrastColor' in assets folder")
             return UIColor()
         }
         return color
     }
+    
+    static var TTBackgoundColor: UIColor {
+        guard let color = UIColor(named: "TTBackgoundColor") else {
+            print("Can not find 'TTBackgoundColor' in assets folder")
+            return UIColor()
+        }
+        return color
+    }
+    
 }

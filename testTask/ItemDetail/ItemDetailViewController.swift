@@ -19,7 +19,6 @@ final class ItemDetailViewController: UIViewController {
 
         setUp()
         presenter.requestDataUpdate()
-        
     }
     
     deinit {
@@ -58,11 +57,18 @@ final class ItemDetailViewController: UIViewController {
         
         whereToBuyButton.layer.cornerRadius = 8
         whereToBuyButton.layer.borderWidth = 1
-        whereToBuyButton.layer.borderColor = UIColor.systemGray.cgColor
+        whereToBuyButton.layer.borderColor = UIColor(red: 239/255, green: 239/255, blue: 240/255, alpha: 1.0).cgColor
         whereToBuyButton.setTitle("ГДЕ КУПИТЬ", for: .normal)
-        whereToBuyButton.titleLabel?.font = UIFont(name: "SanFranciscoDisplay-Regular", size: 12)
+//        let titleFont = UIFont(name: "SanFranciscoDisplay-Regular", size: 12)
+//        var title = NSAttributedString(string: "ГДЕ КУПИТЬ", attributes: [.font: titleFont!])
+//        whereToBuyButton.setAttributedTitle(title, for: .normal)
         whereToBuyButton.setTitleColor(.TTContrastColor, for: .normal)
-
+        
+        whereToBuyButton.setImage(UIImage(named: "LocationIcon"), for: .normal)
+        whereToBuyButton.imageEdgeInsets = UIEdgeInsets(top: 9, left: 0, bottom: 9, right: 7)
+        whereToBuyButton.titleEdgeInsets.top = 13
+        whereToBuyButton.titleEdgeInsets.bottom = 13
+        whereToBuyButton.imageView?.contentMode = .scaleAspectFill
     }
     
     private func setUpConstraints() {
@@ -90,32 +96,30 @@ final class ItemDetailViewController: UIViewController {
             whereToBuyButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 14),
             whereToBuyButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -14),
             whereToBuyButton.heightAnchor.constraint(equalToConstant: 36)
-            
         ])
-        
     }
-
 }
 
 extension ItemDetailViewController: ItemDetailViewProtocol {
     func updateUIUsing(item: Item) {
-        
         itemNameLabel.text = item.name
         itemDetailLabel.text = item.description
+        var itemImage: UIImage!
         
         guard let imagePath = item.imageURL, let imageURL = URL(string: imagePath) else {
             print("Can not create image URL")
+            itemImage = UIImage(named: "noImage")
             return
         }
         do {
             let data = try Data(contentsOf: imageURL)
             if let image = UIImage(data: data) {
-                mainImageView.image = image
+                itemImage = image
             }
         } catch {
             print("No image for item")
+            itemImage = UIImage(named: "noImage")
         }
+        mainImageView.image = itemImage
     }
-    
-
 }

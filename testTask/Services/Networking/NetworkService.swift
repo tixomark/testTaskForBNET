@@ -75,7 +75,7 @@ final class NetworkService: NetworkServiceProtocol {
             var components = URLComponents(string: self.baseURL + APIMethods.index.rawValue)!
             components.queryItems = [URLQueryItem(name: "offset", value: "\(offset)"),
                                      URLQueryItem(name: "limit", value: "\(limit)"),
-                                     URLQueryItem(name: "query", value: "\(query)")]
+                                     URLQueryItem(name: "search", value: "\(query)")]
             
             var request = URLRequest(url: components.url!)
             request.httpMethod = "GET"
