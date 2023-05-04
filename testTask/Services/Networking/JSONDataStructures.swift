@@ -12,19 +12,20 @@ import UIKit
 struct Item: Codable {
     let id: Int?
     var imageURL: String?
-//    let categories: Categories?
+    var categories: Categories?
     let name, description, documentation: String?
 //    let fields: [Field]?
     
     enum CodingKeys: String, CodingKey {
         case imageURL = "image"
-        case id, name, description, documentation
+        case id, name, description, documentation, categories
     }
 }
 
 struct Categories: Codable {
     let id: Int?
-    let icon, image, name: String?
+    var icon: String?
+    let image, name: String?
 }
 
 struct Field: Codable {

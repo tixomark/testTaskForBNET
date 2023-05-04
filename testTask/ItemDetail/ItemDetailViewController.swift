@@ -10,7 +10,7 @@ import UIKit
 final class ItemDetailViewController: UIViewController {
     var presenter: ItemDetailPresenterProtocol!
     
-    var mainImageView, typeIconImageView: UIImageView!
+    var mainImageView, categoryIconImageView, ratingImageView: UIImageView!
     var itemNameLabel, itemDetailLabel: UILabel!
     var whereToBuyButton: UIButton!
     
@@ -19,6 +19,7 @@ final class ItemDetailViewController: UIViewController {
 
         setUp()
         presenter.requestDataUpdate()
+        presenter.getCategoryIcon()
     }
     
     deinit {
@@ -34,12 +35,14 @@ final class ItemDetailViewController: UIViewController {
         view.backgroundColor = .TTsystemColor
         
         mainImageView = UIImageView()
-        typeIconImageView = UIImageView()
+        categoryIconImageView = UIImageView()
+        ratingImageView = UIImageView()
         itemNameLabel = UILabel()
         itemDetailLabel = UILabel()
         whereToBuyButton = UIButton()
         view.addSubview(mainImageView)
-        view.addSubview(typeIconImageView)
+        view.addSubview(categoryIconImageView)
+        view.addSubview(ratingImageView)
         view.addSubview(itemNameLabel)
         view.addSubview(itemDetailLabel)
         view.addSubview(whereToBuyButton)
@@ -47,10 +50,13 @@ final class ItemDetailViewController: UIViewController {
         mainImageView.contentMode = .scaleAspectFit
         mainImageView.clipsToBounds = true
         
-        itemNameLabel.font = UIFont(name: "SanFranciscoDisplay-Semibold", size: 20)
+        categoryIconImageView.contentMode = .scaleAspectFit
+        categoryIconImageView.clipsToBounds = true
+        
+        itemNameLabel.font = UIFont(name: "AppleSDGothicNeo-Semibold", size: 20)
         itemNameLabel.numberOfLines = 0
         
-        itemDetailLabel.font = UIFont(name: "SanFranciscoDisplay-Regular", size: 15)
+        itemDetailLabel.font = UIFont(name: "AppleSDGothicNeo-Regular", size: 15)
         itemDetailLabel.textColor = .systemGray
         
         itemDetailLabel.numberOfLines = 0
@@ -58,22 +64,22 @@ final class ItemDetailViewController: UIViewController {
         whereToBuyButton.layer.cornerRadius = 8
         whereToBuyButton.layer.borderWidth = 1
         whereToBuyButton.layer.borderColor = UIColor(red: 239/255, green: 239/255, blue: 240/255, alpha: 1.0).cgColor
-        whereToBuyButton.setTitle("ГДЕ КУПИТЬ", for: .normal)
+//        whereToBuyButton.setTitle("ГДЕ КУПИТЬ", for: .normal)
 //        let titleFont = UIFont(name: "SanFranciscoDisplay-Regular", size: 12)
-//        var title = NSAttributedString(string: "ГДЕ КУПИТЬ", attributes: [.font: titleFont!])
-//        whereToBuyButton.setAttributedTitle(title, for: .normal)
-        whereToBuyButton.setTitleColor(.TTContrastColor, for: .normal)
+        var title = NSAttributedString(string: "ГДЕ КУПИТЬ", attributes: [NSAttributedString.Key.font: UIFont(name: "AppleSDGothicNeo-Regular", size: 12)!])
+        whereToBuyButton.setAttributedTitle(title, for: .normal)
+//        whereToBuyButton.titleLabel?.font = UIFont(name: "SanFranciscoDisplay-Regular", size: 12)
         
+        whereToBuyButton.setTitleColor(.TTContrastColor, for: .normal)
         whereToBuyButton.setImage(UIImage(named: "LocationIcon"), for: .normal)
         whereToBuyButton.imageEdgeInsets = UIEdgeInsets(top: 9, left: 0, bottom: 9, right: 7)
-        whereToBuyButton.titleEdgeInsets.top = 13
-        whereToBuyButton.titleEdgeInsets.bottom = 13
         whereToBuyButton.imageView?.contentMode = .scaleAspectFill
     }
     
     private func setUpConstraints() {
         mainImageView.translatesAutoresizingMaskIntoConstraints = false
-        typeIconImageView.translatesAutoresizingMaskIntoConstraints = false
+        categoryIconImageView.translatesAutoresizingMaskIntoConstraints = false
+        ratingImageView.translatesAutoresizingMaskIntoConstraints = false
         itemNameLabel.translatesAutoresizingMaskIntoConstraints = false
         itemDetailLabel.translatesAutoresizingMaskIntoConstraints = false
         whereToBuyButton.translatesAutoresizingMaskIntoConstraints = false
@@ -84,6 +90,16 @@ final class ItemDetailViewController: UIViewController {
             mainImageView.widthAnchor.constraint(equalToConstant: view.frame.width / 3),
             mainImageView.heightAnchor.constraint(equalToConstant: view.frame.width / 2),
             mainImageView.bottomAnchor.constraint(equalTo: itemNameLabel.topAnchor, constant: -32),
+            
+            categoryIconImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25),
+            categoryIconImageView.topAnchor.constraint(equalTo: mainImageView.topAnchor),
+            categoryIconImageView.heightAnchor.constraint(equalToConstant: view.frame.width / 12),
+            categoryIconImageView.widthAnchor.constraint(equalTo: categoryIconImageView.heightAnchor),
+            
+            ratingImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25),
+            ratingImageView.topAnchor.constraint(equalTo: mainImageView.topAnchor),
+            ratingImageView.heightAnchor.constraint(equalToConstant: view.frame.width / 12),
+            ratingImageView.widthAnchor.constraint(equalTo: categoryIconImageView.heightAnchor),
             
             itemNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 14),
             itemNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -14),
@@ -101,7 +117,8 @@ final class ItemDetailViewController: UIViewController {
 }
 
 extension ItemDetailViewController: ItemDetailViewProtocol {
-    func updateUIUsing(item: Item) {
+    func updateUIUsing(_ item: Item) {
+        ratingImageView.image = UIImage(named: "StarImage")
         itemNameLabel.text = item.name
         itemDetailLabel.text = item.description
         var itemImage: UIImage!
@@ -121,5 +138,28 @@ extension ItemDetailViewController: ItemDetailViewProtocol {
             itemImage = UIImage(named: "noImage")
         }
         mainImageView.image = itemImage
+    }
+    
+    func updateCategoriesIcon(_ iconUrl: String) {
+        var iconImage: UIImage!
+        
+        guard let iconURL = URL(string: iconUrl) else {
+            print("Can not create image URL")
+            iconImage = UIImage(named: "noImage")
+            return
+        }
+        do {
+            let data = try Data(contentsOf: iconURL)
+            if let image = UIImage(data: data) {
+                iconImage = image
+            }
+        } catch {
+            print("No image for item")
+            iconImage = UIImage(named: "noImage")
+        }
+        
+        DispatchQueue.main.async {
+            self.categoryIconImageView.image = iconImage
+        }
     }
 }

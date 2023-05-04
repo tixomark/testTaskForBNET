@@ -11,8 +11,9 @@ protocol ListViewProtocol: AnyObject {
     var presenter: ListPresenterProtocol! { get }
     
     func addItemsAt(_ indexPaths: [IndexPath])
-    func items(toDelete: [IndexPath], toInsert: [IndexPath])
     func reloadItem(at index: Int)
+    func reloadCollection()
+    
 }
 
 protocol ListPresenterProtocol {
@@ -39,20 +40,33 @@ final class ListPresenter: ListPresenterProtocol {
     var dataProvider: DataProviderProtocol?
     var networkService: NetworkServiceProtocol?
     
-    var lock = NSLock()
-    var isUpdatingItems: Bool = false
+    var lock = pthread_rwlock_t()
+    var attr = pthread_rwlockattr_t()
+    var items: [Item] {
+        get {
+            pthread_rwlock_rdlock(&lock)
+            let tmp = itemsArr
+            pthread_rwlock_unlock(&lock)
+            return tmp
+        }
+        set {
+            pthread_rwlock_wrlock(&lock)
+            itemsArr = newValue
+            pthread_rwlock_unlock(&lock)
+        }
+    }
     
-    var items: [Item] = []
+    private var itemsArr: [Item] = []
     var lastRequest: String = ""
     weak var view: ListViewProtocol!
     
     init(view: ListViewProtocol) {
         self.view = view
+        pthread_rwlock_init(&lock, &attr)
     }
     deinit {
         print("deinited ListPresenter")
     }
-    
     
     func requestNetSetOfItems(text: String) {
         let nextBatchStartIndex = lastRequest == text ? items.count : 0
@@ -62,34 +76,19 @@ final class ListPresenter: ListPresenterProtocol {
                                    completion: { result in
             switch result {
             case .success(let items):
-                
-                self.lock.lock()
-                    if self.lastRequest != text {
-                        var indexPathsToRemove: [IndexPath] = []
-                        (0 ..< self.items.count).forEach { index in
-                            indexPathsToRemove.append(.init(item: index, section: 0))
-                        }
-                        var indexPathsToInsert: [IndexPath] = []
-                        (0 ..< items.count).forEach { index in
-                            indexPathsToInsert.append(.init(item: index, section: 0))
-                        }
-                        self.items = items
-                        
-                        self.view.items(toDelete: indexPathsToRemove, toInsert: indexPathsToInsert)
-                        self.lastRequest = text
-                    } else {
-                        self.items.append(contentsOf: items)
-                        var indexPaths: [IndexPath] = []
-                        (nextBatchStartIndex ..< self.items.count).forEach { index in
-                            indexPaths.append(.init(item: index, section: 0))
-                        }
-                        
-                        self.view.addItemsAt(indexPaths)
-                        
+                if self.lastRequest != text {
+                    self.items = items
+                    self.view.reloadCollection()
+                    self.lastRequest = text
+                } else {
+                    self.items.append(contentsOf: items)
+                    var indexPaths: [IndexPath] = []
+                    (nextBatchStartIndex ..< self.items.count).forEach { index in
+                        indexPaths.append(.init(item: index, section: 0))
+                    }
+                    self.view.addItemsAt(indexPaths)
                 }
-                self.lock.unlock()
                 self.loadImages()
-                
             case .failure(let error):
                 print(error.localizedDescription)
                 return

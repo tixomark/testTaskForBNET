@@ -16,6 +16,8 @@ protocol NetworkServiceProtocol {
                     completion: @escaping (Result<ItemList, Error>) -> ())
     func downloadImageFor(item: Item,
                           completion: @escaping (Result<URL,Error>) -> ())
+    func downloadCategoryIconFor(item: Item,
+                                 completion: @escaping (Result<URL,Error>) -> ())
 }
 
 
@@ -96,6 +98,28 @@ final class NetworkService: NetworkServiceProtocol {
         }
     }
     
+    private func downloadImage(at url: URL, completion: @escaping (Result<URL,Error>) -> ()) {
+        self.networkURLSession.downloadTask(with: url) { tempURL, response, error in
+            guard error == nil, let tempURL = tempURL else {
+                completion(.failure(error!))
+                print(error!.localizedDescription)
+                return
+            }
+            
+            guard let newImageURL = URLComponents(string: FileManager.default.imagesDir.absoluteString + url.lastPathComponent)?.url else { return }
+            if FileManager.default.fileExists(atPath: newImageURL.path) {
+                completion(.success(newImageURL))
+            } else {
+                do {
+                    try FileManager.default.moveItem(at: tempURL, to: newImageURL)
+                    completion(.success(newImageURL))
+                } catch {
+                    print("Can not move image at \(tempURL) to \(newImageURL)")
+                }
+            }
+        }.resume()
+    }
+    
     func downloadImageFor(item: Item, completion: @escaping (Result<URL,Error>) -> ()) {
         networkQueue.async {
             guard let imagePath = item.imageURL,
@@ -103,26 +127,32 @@ final class NetworkService: NetworkServiceProtocol {
                 print("Item does not contain image")
                 return
             }
-            
-            self.networkURLSession.downloadTask(with: imageURL) { tempURL, response, error in
-                guard error == nil, let tempURL = tempURL else {
-                    completion(.failure(error!))
-                    print(error!.localizedDescription)
+            self.downloadImage(at: imageURL) { result in
+                switch result {
+                case .success(let url):
+                    completion(.success(url))
+                case .failure(_):
                     return
                 }
-                
-                guard let newImageURL = URLComponents(string: FileManager.default.imagesDir.absoluteString + imageURL.lastPathComponent)?.url else { return }
-                if FileManager.default.fileExists(atPath: newImageURL.path) {
-                    completion(.success(newImageURL))
-                } else {
-                    do {
-                        try FileManager.default.moveItem(at: tempURL, to: newImageURL)
-                        completion(.success(newImageURL))
-                    } catch {
-                        print("Can not move image at \(tempURL) to \(newImageURL)")
-                    }
+            }
+        }
+    }
+    
+    func downloadCategoryIconFor(item: Item, completion: @escaping (Result<URL,Error>) -> ()) {
+        networkQueue.async {
+            guard let imagePath = item.categories?.icon,
+                  let imageURL = URLComponents(string: self.baseURL + imagePath)?.url else {
+                print("Item does not contain image")
+                return
+            }
+            self.downloadImage(at: imageURL) { result in
+                switch result {
+                case .success(let url):
+                    completion(.success(url))
+                case .failure(_):
+                    return
                 }
-            }.resume()
+            }
         }
     }
     

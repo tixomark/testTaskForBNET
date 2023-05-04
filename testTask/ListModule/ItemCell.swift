@@ -48,9 +48,9 @@ final class ItemCell: UICollectionViewCell {
         imageView.layer.cornerRadius = 8
         
         titleLabel.numberOfLines = 0
-        titleLabel.font = UIFont(name: "SanFranciscoDisplay-Semibold", size: 13)
+        titleLabel.font = UIFont(name: "AppleSDGothicNeo-Semibold", size: 13)
         
-        descriptionLabel.font = UIFont(name: "SanFranciscoDisplay-Regular", size: 12)
+        descriptionLabel.font = UIFont(name: "AppleSDGothicNeo-Regular", size: 12)
         descriptionLabel.textColor = .systemGray
         descriptionLabel.numberOfLines = 5
     }

@@ -80,19 +80,17 @@ final class ListViewController: UIViewController {
         searchBar.delegate = self
         navigationItem.setRightBarButton(nil, animated: true)
         navigationItem.titleView = searchBar
+        collectionView.setContentOffset(.zero, animated: true)
         searchBar.setShowsCancelButton(true, animated: true)
         searchBar.becomeFirstResponder()
-        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        super.touchesBegan(touches, with: event)
-        print(searchBar.isFirstResponder)
+        super.touchesBegan(touches, with: event)
         if searchBar.isFirstResponder {
             searchBar.resignFirstResponder()
         }
     }
-    
 }
 
 extension ListViewController: ListViewProtocol {
@@ -108,23 +106,21 @@ extension ListViewController: ListViewProtocol {
         DispatchQueue.main.async {
             self.collectionView.insertItems(at: indexPaths)
             print("items inserted")
-            
             if indexPaths.count == 10 {
                 self.collectionIsWaitingForUpdate = false
             }
         }
     }
     
-    func items(toDelete: [IndexPath], toInsert: [IndexPath]) {
+    func reloadCollection() {
         DispatchQueue.main.async {
-            self.collectionView.performBatchUpdates {
-                self.collectionView.deleteItems(at: toDelete)
-                self.collectionView.insertItems(at: toInsert)
+            self.collectionView.reloadData()
+            if self.collectionView.isDecelerating || self.collectionView.isDragging {
+                
             }
-            print("items deleted")
+            self.collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
         }
     }
-   
 }
 
 extension ListViewController: UICollectionViewDataSource {
@@ -142,7 +138,6 @@ extension ListViewController: UICollectionViewDataSource {
             return cell
         }
         cell.configureUsing(item)
-        
         return cell
     }
 }
@@ -154,7 +149,6 @@ extension ListViewController: UICollectionViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard !collectionIsWaitingForUpdate else {
-            //            print("collection is waiting for next batch of items")
             return
         }
         if scrollView.contentOffset.y + scrollView.frame.size.height > scrollView.contentSize.height {
@@ -181,6 +175,7 @@ extension ListViewController: UISearchBarDelegate {
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        тут таймер потому, что не хочется на каждое изменение слова !сразу! дулать запросы. Пусть юзер введет хоть что-то более менее завершенное.
         if timer != nil {
             timer.invalidate()
             timer = nil
